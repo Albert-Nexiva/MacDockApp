@@ -162,6 +162,26 @@ class DockState extends State<Dock> {
     );
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(covariant Dock oldWidget) {
+    if (oldWidget.items != widget.items) {
+      _items.clear();
+      _items.addAll(widget.items);
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _items.clear();
+    super.dispose();
+  }
+
   double getPropertyValue({
     required int index,
     required double baseValue,
