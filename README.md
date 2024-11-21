@@ -1,6 +1,4 @@
-# mac_dock
-
-A new Flutter project.
+# Mac Dock Widget
 
 ## Getting Started
 
