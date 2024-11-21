@@ -10,6 +10,7 @@ class AnimatedTooltip extends StatefulWidget {
   final Duration? delay;
   final ThemeData? theme;
   final Widget? child;
+  final bool showTip;
 
   const AnimatedTooltip({
     super.key,
@@ -18,6 +19,7 @@ class AnimatedTooltip extends StatefulWidget {
     this.theme,
     this.delay,
     this.child,
+    this.showTip = true,
   }) : assert(child != null || targetGlobalKey != null);
 
   @override
@@ -48,8 +50,6 @@ class AnimatedTooltipState extends State<AnimatedTooltip>
   );
   @override
   Widget build(BuildContext context) {
-    // If no theme is provided,
-    // use the opposite brightness of the current theme to make the tooltip stand out.
     final theme = widget.theme ??
         ThemeData(
           useMaterial3: true,
@@ -62,72 +62,77 @@ class AnimatedTooltipState extends State<AnimatedTooltip>
           ? MouseRegion(
               onEnter: (_) => _toggle(),
               onExit: (_) => _toggle(),
+              cursor: SystemMouseCursors.click,
               child: widget.child,
             )
           : null,
       overlayChildBuilder: (context) {
-        return Positioned(
-          top: _tooltipTop,
-          bottom: _tooltipBottom,
-          // Provide a transition alignment to make the tooltip appear from the target.
-          child: ScaleTransition(
-            alignment: _transitionAlignment,
-            scale: _scaleAnimation,
-            // TapRegion allows the tooltip to be dismissed by tapping outside of it.
-            child: Theme(
-              data: theme,
-              // Don't allow the tooltip to get wider than the screen.
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isInverted)
-                      Align(
-                        alignment: _arrowAlignment,
-                        child: TooltipArrow(
-                          size: _arrowSize,
-                          isInverted: true,
-                          color: Colors.white.withOpacity(0.1),
+        if (!widget.showTip) {
+          return const SizedBox();
+        } else {
+          return Positioned(
+            top: _tooltipTop,
+            bottom: _tooltipBottom,
+            // Provide a transition alignment to make the tooltip appear from the target.
+            child: ScaleTransition(
+              alignment: _transitionAlignment,
+              scale: _scaleAnimation,
+              // TapRegion allows the tooltip to be dismissed by tapping outside of it.
+              child: Theme(
+                data: theme,
+                // Don't allow the tooltip to get wider than the screen.
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_isInverted)
+                        Align(
+                          alignment: _arrowAlignment,
+                          child: TooltipArrow(
+                            size: _arrowSize,
+                            isInverted: true,
+                            color: Colors.white.withOpacity(0.1),
+                          ),
                         ),
-                      ),
-                    Align(
-                      alignment: _tooltipAlignment,
-                      child: ClipRRect(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(8)),
-                        child: IntrinsicWidth(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(8),
+                      Align(
+                        alignment: _tooltipAlignment,
+                        child: ClipRRect(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(8)),
+                          child: IntrinsicWidth(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(8),
+                                  ),
                                 ),
+                                padding: const EdgeInsets.all(2),
+                                child: Center(child: widget.content),
                               ),
-                              padding: const EdgeInsets.all(2),
-                              child: Center(child: widget.content),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    if (!_isInverted)
-                      Align(
-                        alignment: _arrowAlignment,
-                        child: TooltipArrow(
-                          size: _arrowSize,
-                          isInverted: false,
-                          color: theme.canvasColor,
+                      if (!_isInverted)
+                        Align(
+                          alignment: _arrowAlignment,
+                          child: TooltipArrow(
+                            size: _arrowSize,
+                            isInverted: false,
+                            color: theme.canvasColor,
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }

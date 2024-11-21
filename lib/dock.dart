@@ -83,13 +83,7 @@ class DockState extends State<Dock> {
                         return DragTarget<int>(
                           onWillAcceptWithDetails: (oldIndex) =>
                               oldIndex.data != index,
-                          onAcceptWithDetails: (oldIndex) {
-                            setState(() {
-                              final draggedItem =
-                                  _items.removeAt(oldIndex.data);
-                              _items.insert(index, draggedItem);
-                            });
-                          },
+                          hitTestBehavior: HitTestBehavior.opaque,
                           builder: (context, candidateData, rejectedData) {
                             return Draggable(
                               data: index,
@@ -109,9 +103,11 @@ class DockState extends State<Dock> {
                               onDragEnd: (details) {
                                 setState(() {
                                   draggedIndex = null;
+                                  hoveredIndex = null;
                                 });
                               },
                               child: AnimatedTooltip(
+                                showTip: draggedIndex == null,
                                 content: Container(
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 8),
@@ -160,11 +156,6 @@ class DockState extends State<Dock> {
         ),
       ),
     );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
